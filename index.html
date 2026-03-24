@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>NormaSalud — Asistente en Normatividad Vigente en Salud · Colombia</title>
+<meta name="description" content="Bot asistente sobre normatividad vigente en salud en Colombia: PBS, UPC, copagos, tutelas, regímenes y leyes Minsalud."/>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Georgia,serif;min-height:100vh;background:linear-gradient(160deg,#E8F3FF 0%,#F5FAFF 50%,#EBF5FB 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px}
+  #app{width:100%;max-width:680px;background:#fff;border-radius:20px;box-shadow:0 8px 40px rgba(13,110,253,.13),0 1px 4px rgba(0,0,0,.06);overflow:hidden;display:flex;flex-direction:column;height:min(760px,95vh);border:1px solid #D6EAFF}
+  /* Header */
+  #header{background:linear-gradient(120deg,#0D47A1,#1565C0,#0288D1);padding:16px 20px;display:flex;align-items:center;gap:12px;flex-shrink:0}
+  #avatar{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:22px;border:1.5px solid rgba(255,255,255,.4);flex-shrink:0}
+  #bot-title{color:#fff;font-weight:700;font-size:17px}
+  #bot-sub{color:rgba(255,255,255,.78);font-size:11.5px;font-family:system-ui;margin-top:2px}
+  #status{margin-left:auto;display:flex;align-items:center;gap:5px}
+  #dot{width:8px;height:8px;border-radius:50%;background:#4ADE80;box-shadow:0 0 6px #4ADE8088}
+  #status span{color:rgba(255,255,255,.82);font-size:11.5px;font-family:system-ui}
+  /* Tags */
+  #tags{display:flex;gap:6px;padding:9px 14px;background:#F0F7FF;border-bottom:1px solid #D6EAFF;overflow-x:auto;flex-shrink:0;scrollbar-width:none}
+  #tags::-webkit-scrollbar{display:none}
+  .tag{font-size:11.5px;padding:3px 10px;border-radius:20px;background:#DBEAFE;color:#1D4ED8;border:1px solid #BFDBFE;white-space:nowrap;font-family:system-ui;cursor:pointer;transition:background .2s}
+  .tag:hover{background:#BFDBFE}
+  /* Messages */
+  #messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:13px;scroll-behavior:smooth}
+  .msg-row{display:flex;gap:9px;align-items:flex-end}
+  .msg-row.user{flex-direction:row-reverse}
+  .msg-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#0D47A1,#0288D1);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+  .bubble{max-width:78%;padding:11px 14px;font-size:14px;line-height:1.65;font-family:system-ui;white-space:pre-wrap;word-wrap:break-word}
+  .bubble.bot{border-radius:4px 18px 18px 18px;background:#F0F7FF;border:1px solid #C8E0FA;color:#1a2b4a}
+  .bubble.user{border-radius:18px 4px 18px 18px;background:linear-gradient(135deg,#0D6EFD,#0099CC);color:#fff}
+  /* Typing */
+  .typing-dots{display:flex;gap:5px;align-items:center;padding:3px 0}
+  .typing-dots span{width:8px;height:8px;border-radius:50%;background:#0D6EFD;animation:bop 1.2s ease-in-out infinite}
+  .typing-dots span:nth-child(2){animation-delay:.2s}
+  .typing-dots span:nth-child(3){animation-delay:.4s}
+  @keyframes bop{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
+  /* Input area */
+  #input-area{padding:11px 15px 13px;border-top:1px solid #D6EAFF;background:#fff;flex-shrink:0}
+  #input-box{display:flex;gap:8px;align-items:flex-end;background:#F0F7FF;border:1.5px solid #BFDBFE;border-radius:14px;padding:8px 11px;transition:border-color .2s}
+  #input-box:focus-within{border-color:#0D6EFD}
+  #userInput{flex:1;border:none;background:transparent;font-size:14px;font-family:system-ui;resize:none;outline:none;color:#1a2b4a;line-height:1.5;max-height:80px;overflow-y:auto}
+  #userInput::placeholder{color:#94a3b8}
+  #sendBtn{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#0D6EFD,#0288D1);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity .2s;box-shadow:0 2px 8px #0D6EFD44}
+  #sendBtn:disabled{background:#CBD5E1;box-shadow:none;cursor:not-allowed}
+  #footer-note{text-align:center;margin-top:7px;font-size:10.5px;color:#9CA3AF;font-family:system-ui}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+  .msg-row{animation:fadeUp .3s ease both}
+  /* Scrollbar */
+  #messages::-webkit-scrollbar{width:5px}
+  #messages::-webkit-scrollbar-track{background:transparent}
+  #messages::-webkit-scrollbar-thumb{background:#BFDBFE;border-radius:3px}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div id="header">
+    <div id="avatar">🏛️</div>
+    <div>
+      <div id="bot-title">NormaSalud</div>
+      <div id="bot-sub">Asistente IA · Normatividad vigente en salud · Colombia</div>
+    </div>
+    <div id="status">
+      <div id="dot"></div>
+      <span>En línea</span>
+    </div>
+  </div>
+
+  <div id="tags">
+    <span class="tag" onclick="sendQuick('¿Qué servicios cubre el Plan de Beneficios en Salud (PBS) en Colombia?')">🏥 PBS / UPC</span>
+    <span class="tag" onclick="sendQuick('¿Cuándo debo pagar copago o cuota moderadora y quiénes están exentos?')">💰 Copagos</span>
+    <span class="tag" onclick="sendQuick('¿Cómo puedo interponer una tutela si mi EPS me niega un servicio de salud?')">⚖️ Tutelas</span>
+    <span class="tag" onclick="sendQuick('¿Cuáles son mis derechos como usuario del sistema de salud en Colombia?')">📋 Derechos</span>
+    <span class="tag" onclick="sendQuick('¿Cuál es la diferencia entre el régimen subsidiado y el contributivo en Colombia?')">🔄 Regímenes</span>
+    <span class="tag" onclick="sendQuick('¿Cuáles son las principales leyes del sistema de salud colombiano como la Ley 100 y la Ley 1751?')">📜 Leyes Minsalud</span>
+  </div>
+
+  <div id="messages"></div>
+
+  <div id="input-area">
+    <div id="input-box">
+      <textarea id="userInput" placeholder="Escribe tu consulta sobre normatividad en salud..." rows="1" onkeydown="handleKey(event)" oninput="autoGrow(this)"></textarea>
+      <button id="sendBtn" onclick="sendMsg()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <path d="M22 2L11 13M22 2L15 22L11 13L2 9L22 2Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+    <div id="footer-note">Información orientativa · Supersalud: 018000-513700 · <a href="https://www.supersalud.gov.co" target="_blank" style="color:#0D6EFD;text-decoration:none">supersalud.gov.co</a></div>
+  </div>
+
+</div>
+
+<script>
+const SYSTEM = `Eres NormaSalud, un asistente virtual especializado en normatividad vigente en salud en Colombia. Respondes de forma clara, precisa y accesible para ciudadanos, estudiantes y profesionales del sector salud.
+
+Tu base de conocimiento incluye:
+
+PLAN DE BENEFICIOS EN SALUD (PBS) / UPC
+- El Plan de Beneficios en Salud (antes POS) es el conjunto de servicios, tecnologías y medicamentos a los que tienen derecho los afiliados al sistema de salud colombiano (Res. 2080 de 2023 del Minsalud).
+- La UPC (Unidad de Pago por Capitación) es el valor que el Estado reconoce a las EPS por cada afiliado. Para 2024, la UPC del régimen contributivo fue aproximadamente $1.003.074 anuales por persona.
+- Exentos de copago en PBS: enfermedades catastróficas, SISBEN I y II, menores de 18 años, madres gestantes, urgencias.
+- NO incluidos en PBS: tratamientos estéticos, medicamentos sin aprobación INVIMA, procedimientos experimentales, servicios en el exterior sin urgencia.
+
+COPAGOS Y CUOTAS MODERADORAS
+- Cuotas moderadoras: aplican en consulta médica general, especializada, urgencias no vitales y medicamentos. Regulan el uso del sistema.
+- Copagos: aplican en hospitalización, cirugías y procedimientos. Solo en régimen contributivo.
+- Se calculan según el ingreso base de cotización (IBC): niveles I, II y III.
+- EXENTOS: afiliados nivel I (salario mínimo), menores de 18 años, embarazadas, enfermedades catastróficas (cáncer, VIH, enfermedad renal crónica), urgencias vitales.
+- Tope anual de copagos 2024: 1 salario mínimo mensual vigente por afiliado.
+
+DERECHOS Y DEBERES DE LOS USUARIOS (Ley 1438/2011)
+Derechos: acceso al PBS, atención de urgencias en cualquier IPS, elegir libremente EPS e IPS, confidencialidad clínica, información sobre diagnóstico y tratamiento, presentar PQRS, atención humanizada y sin discriminación, segunda opinión médica, acceso a historia clínica.
+Deberes: actuar de buena fe, pagar aportes y copagos, cumplir prescripciones, suministrar información veraz, cuidar instalaciones.
+
+RÉGIMEN SUBSIDIADO VS CONTRIBUTIVO
+- Contributivo: trabajadores con capacidad de pago. Cotización 12.5% del IBC (8% empleador + 4% empleado). Beneficiarios: cotizante + familia (cónyuge, hijos menores de 25 años en estudio, hijos con discapacidad).
+- Subsidiado: personas sin capacidad de pago identificadas por SISBEN IV. Financiado por ADRES. Mismo PBS desde 2012 (unificación). Copagos diferenciados por categoría SISBEN (A, B, C, D).
+
+TUTELAS EN SALUD
+- Protege el derecho fundamental a la salud (Art. 86 Constitución; Sentencia T-760/2008 Corte Constitucional).
+- Procede cuando la EPS niega un servicio del PBS, o uno no PBS pero necesario para la vida o dignidad del paciente.
+- Plazo de respuesta: 10 días calendario (urgente: 48 horas).
+- Documentos: solicitud rechazada, respuesta de la EPS (o silencio), historia clínica, orden médica.
+- MIPRES: mecanismo para prescribir tecnologías no financiadas por la UPC, alternativa a la tutela.
+- La EPS puede recobrarse ante la ADRES por servicios no PBS ordenados por tutela.
+
+NORMATIVIDAD MINSALUD CLAVE
+- Ley 100/1993: crea el Sistema General de Seguridad Social en Salud (SGSSS).
+- Ley 1438/2011: reforma del sistema, atención primaria en salud.
+- Ley 1751/2015: Ley Estatutaria — salud como derecho fundamental autónomo.
+- Decreto 780/2016: Decreto Único Reglamentario del sector salud.
+- Resolución 2080/2023: Plan de Beneficios en Salud vigente.
+- Ley 1122/2007: ajustes al SGSSS.
+- Decreto 2353/2015: afiliación y traslados al SGSSS.
+- Circular 011/2024 Supersalud: deberes de las EPS frente a los afiliados.
+- Supersalud: ente de inspección, vigilancia y control. Línea gratuita: 018000-513700.
+
+REGLAS DE RESPUESTA:
+- Responde siempre en español, claro y organizado.
+- Usa viñetas o numeración cuando sea útil.
+- Cita la norma específica cuando sea relevante.
+- Si el usuario describe una situación personal, oriéntalo sobre sus derechos y pasos a seguir.
+- Si no tienes certeza, dilo y sugiere consultar la Supersalud o el Minsalud.
+- Máximo 220 palabras por respuesta salvo que el tema lo requiera.`;
+
+let history = [];
+let isLoading = false;
+
+function autoGrow(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,80)+'px'}
+
+function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg()}}
+
+function addMessage(role,text){
+  const msgs=document.getElementById('messages');
+  const row=document.createElement('div');
+  row.className='msg-row '+(role==='user'?'user':'bot');
+  if(role==='assistant'){
+    const av=document.createElement('div');
+    av.className='msg-avatar';av.textContent='🏛️';
+    row.appendChild(av);
+  }
+  const bubble=document.createElement('div');
+  bubble.className='bubble '+(role==='user'?'user':'bot');
+  bubble.textContent=text;
+  row.appendChild(bubble);
+  msgs.appendChild(row);
+  msgs.scrollTop=msgs.scrollHeight;
+  return bubble;
+}
+
+function showTyping(){
+  const msgs=document.getElementById('messages');
+  const row=document.createElement('div');
+  row.className='msg-row bot';row.id='typing-row';
+  const av=document.createElement('div');av.className='msg-avatar';av.textContent='🏛️';
+  const bubble=document.createElement('div');
+  bubble.className='bubble bot';
+  bubble.innerHTML='<div class="typing-dots"><span></span><span></span><span></span></div>';
+  row.appendChild(av);row.appendChild(bubble);
+  msgs.appendChild(row);msgs.scrollTop=msgs.scrollHeight;
+}
+
+function removeTyping(){const t=document.getElementById('typing-row');if(t)t.remove();}
+
+async function doSend(text){
+  if(isLoading||!text)return;
+  isLoading=true;
+  document.getElementById('sendBtn').disabled=true;
+  addMessage('user',text);
+  history.push({role:'user',content:text});
+  showTyping();
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:SYSTEM,messages:history})
+    });
+    const data=await res.json();
+    const reply=data.content?.[0]?.text||'Lo siento, no pude procesar tu consulta. Por favor intenta de nuevo.';
+    removeTyping();
+    addMessage('assistant',reply);
+    history.push({role:'assistant',content:reply});
+  }catch{
+    removeTyping();
+    addMessage('assistant','⚠️ Error de conexión. Verifica tu conexión a internet e intenta de nuevo.');
+  }
+  isLoading=false;
+  document.getElementById('sendBtn').disabled=false;
+  document.getElementById('userInput').focus();
+}
+
+function sendMsg(){
+  const inp=document.getElementById('userInput');
+  const text=inp.value.trim();
+  if(!text)return;
+  inp.value='';inp.style.height='auto';
+  doSend(text);
+}
+
+function sendQuick(q){doSend(q);}
+
+// Mensaje de bienvenida
+window.addEventListener('DOMContentLoaded',()=>{
+  addMessage('assistant','¡Hola! Soy NormaSalud 🏛️, tu asistente en normatividad vigente del sistema de salud colombiano.\n\nPuedo orientarte sobre el PBS/UPC, copagos, cuotas moderadoras, tutelas, tus derechos como usuario, diferencias entre regímenes y las principales leyes del Minsalud.\n\nUsa los botones de acceso rápido o escribe tu consulta. ¿En qué te puedo ayudar hoy?');
+  document.getElementById('userInput').focus();
+});
+</script>
+</body>
+</html>

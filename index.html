@@ -55,7 +55,7 @@
 </head>
 <body>
 <div id="app">
-
+ 
   <div id="header">
     <div id="avatar">🏛️</div>
     <div>
@@ -67,7 +67,7 @@
       <span>En línea</span>
     </div>
   </div>
-
+ 
   <div id="tags">
     <span class="tag" onclick="sendQuick('¿Qué servicios cubre el Plan de Beneficios en Salud (PBS) en Colombia?')">🏥 PBS / UPC</span>
     <span class="tag" onclick="sendQuick('¿Cuándo debo pagar copago o cuota moderadora y quiénes están exentos?')">💰 Copagos</span>
@@ -76,9 +76,9 @@
     <span class="tag" onclick="sendQuick('¿Cuál es la diferencia entre el régimen subsidiado y el contributivo en Colombia?')">🔄 Regímenes</span>
     <span class="tag" onclick="sendQuick('¿Cuáles son las principales leyes del sistema de salud colombiano como la Ley 100 y la Ley 1751?')">📜 Leyes Minsalud</span>
   </div>
-
+ 
   <div id="messages"></div>
-
+ 
   <div id="input-area">
     <div id="input-box">
       <textarea id="userInput" placeholder="Escribe tu consulta sobre normatividad en salud..." rows="1" onkeydown="handleKey(event)" oninput="autoGrow(this)"></textarea>
@@ -90,35 +90,38 @@
     </div>
     <div id="footer-note">Información orientativa · Supersalud: 018000-513700 · <a href="https://www.supersalud.gov.co" target="_blank" style="color:#0D6EFD;text-decoration:none">supersalud.gov.co</a></div>
   </div>
-
+ 
 </div>
-
+ 
 <script>
+// ⬇️ PEGA AQUÍ TU API KEY DE console.anthropic.com
+const API_KEY = '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';
+ 
 const SYSTEM = `Eres NormaSalud, un asistente virtual especializado en normatividad vigente en salud en Colombia. Respondes de forma clara, precisa y accesible para ciudadanos, estudiantes y profesionales del sector salud.
-
+ 
 Tu base de conocimiento incluye:
-
+ 
 PLAN DE BENEFICIOS EN SALUD (PBS) / UPC
 - El Plan de Beneficios en Salud (antes POS) es el conjunto de servicios, tecnologías y medicamentos a los que tienen derecho los afiliados al sistema de salud colombiano (Res. 2080 de 2023 del Minsalud).
 - La UPC (Unidad de Pago por Capitación) es el valor que el Estado reconoce a las EPS por cada afiliado. Para 2024, la UPC del régimen contributivo fue aproximadamente $1.003.074 anuales por persona.
 - Exentos de copago en PBS: enfermedades catastróficas, SISBEN I y II, menores de 18 años, madres gestantes, urgencias.
 - NO incluidos en PBS: tratamientos estéticos, medicamentos sin aprobación INVIMA, procedimientos experimentales, servicios en el exterior sin urgencia.
-
+ 
 COPAGOS Y CUOTAS MODERADORAS
 - Cuotas moderadoras: aplican en consulta médica general, especializada, urgencias no vitales y medicamentos. Regulan el uso del sistema.
 - Copagos: aplican en hospitalización, cirugías y procedimientos. Solo en régimen contributivo.
 - Se calculan según el ingreso base de cotización (IBC): niveles I, II y III.
 - EXENTOS: afiliados nivel I (salario mínimo), menores de 18 años, embarazadas, enfermedades catastróficas (cáncer, VIH, enfermedad renal crónica), urgencias vitales.
 - Tope anual de copagos 2024: 1 salario mínimo mensual vigente por afiliado.
-
+ 
 DERECHOS Y DEBERES DE LOS USUARIOS (Ley 1438/2011)
 Derechos: acceso al PBS, atención de urgencias en cualquier IPS, elegir libremente EPS e IPS, confidencialidad clínica, información sobre diagnóstico y tratamiento, presentar PQRS, atención humanizada y sin discriminación, segunda opinión médica, acceso a historia clínica.
 Deberes: actuar de buena fe, pagar aportes y copagos, cumplir prescripciones, suministrar información veraz, cuidar instalaciones.
-
+ 
 RÉGIMEN SUBSIDIADO VS CONTRIBUTIVO
 - Contributivo: trabajadores con capacidad de pago. Cotización 12.5% del IBC (8% empleador + 4% empleado). Beneficiarios: cotizante + familia (cónyuge, hijos menores de 25 años en estudio, hijos con discapacidad).
 - Subsidiado: personas sin capacidad de pago identificadas por SISBEN IV. Financiado por ADRES. Mismo PBS desde 2012 (unificación). Copagos diferenciados por categoría SISBEN (A, B, C, D).
-
+ 
 TUTELAS EN SALUD
 - Protege el derecho fundamental a la salud (Art. 86 Constitución; Sentencia T-760/2008 Corte Constitucional).
 - Procede cuando la EPS niega un servicio del PBS, o uno no PBS pero necesario para la vida o dignidad del paciente.
@@ -126,7 +129,7 @@ TUTELAS EN SALUD
 - Documentos: solicitud rechazada, respuesta de la EPS (o silencio), historia clínica, orden médica.
 - MIPRES: mecanismo para prescribir tecnologías no financiadas por la UPC, alternativa a la tutela.
 - La EPS puede recobrarse ante la ADRES por servicios no PBS ordenados por tutela.
-
+ 
 NORMATIVIDAD MINSALUD CLAVE
 - Ley 100/1993: crea el Sistema General de Seguridad Social en Salud (SGSSS).
 - Ley 1438/2011: reforma del sistema, atención primaria en salud.
@@ -137,7 +140,7 @@ NORMATIVIDAD MINSALUD CLAVE
 - Decreto 2353/2015: afiliación y traslados al SGSSS.
 - Circular 011/2024 Supersalud: deberes de las EPS frente a los afiliados.
 - Supersalud: ente de inspección, vigilancia y control. Línea gratuita: 018000-513700.
-
+ 
 REGLAS DE RESPUESTA:
 - Responde siempre en español, claro y organizado.
 - Usa viñetas o numeración cuando sea útil.
@@ -145,14 +148,14 @@ REGLAS DE RESPUESTA:
 - Si el usuario describe una situación personal, oriéntalo sobre sus derechos y pasos a seguir.
 - Si no tienes certeza, dilo y sugiere consultar la Supersalud o el Minsalud.
 - Máximo 220 palabras por respuesta salvo que el tema lo requiera.`;
-
+ 
 let history = [];
 let isLoading = false;
-
+ 
 function autoGrow(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,80)+'px'}
-
+ 
 function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg()}}
-
+ 
 function addMessage(role,text){
   const msgs=document.getElementById('messages');
   const row=document.createElement('div');
@@ -170,7 +173,7 @@ function addMessage(role,text){
   msgs.scrollTop=msgs.scrollHeight;
   return bubble;
 }
-
+ 
 function showTyping(){
   const msgs=document.getElementById('messages');
   const row=document.createElement('div');
@@ -182,9 +185,9 @@ function showTyping(){
   row.appendChild(av);row.appendChild(bubble);
   msgs.appendChild(row);msgs.scrollTop=msgs.scrollHeight;
 }
-
+ 
 function removeTyping(){const t=document.getElementById('typing-row');if(t)t.remove();}
-
+ 
 async function doSend(text){
   if(isLoading||!text)return;
   isLoading=true;
@@ -195,7 +198,7 @@ async function doSend(text){
   try{
     const res=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:{'Content-Type':'application/json','x-api-key':API_KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-allow-browser':'true'},
       body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:SYSTEM,messages:history})
     });
     const data=await res.json();
@@ -211,7 +214,7 @@ async function doSend(text){
   document.getElementById('sendBtn').disabled=false;
   document.getElementById('userInput').focus();
 }
-
+ 
 function sendMsg(){
   const inp=document.getElementById('userInput');
   const text=inp.value.trim();
@@ -219,13 +222,18 @@ function sendMsg(){
   inp.value='';inp.style.height='auto';
   doSend(text);
 }
-
+ 
 function sendQuick(q){doSend(q);}
-
+ 
 // Mensaje de bienvenida
 window.addEventListener('DOMContentLoaded',()=>{
   addMessage('assistant','¡Hola! Soy NormaSalud 🏛️, tu asistente en normatividad vigente del sistema de salud colombiano.\n\nPuedo orientarte sobre el PBS/UPC, copagos, cuotas moderadoras, tutelas, tus derechos como usuario, diferencias entre regímenes y las principales leyes del Minsalud.\n\nUsa los botones de acceso rápido o escribe tu consulta. ¿En qué te puedo ayudar hoy?');
   document.getElementById('userInput').focus();
+});
+</script>
+</body>
+</html>
+ 
 });
 </script>
 </body>
